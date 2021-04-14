@@ -27,4 +27,7 @@ public class Slideshow extends Task<ImageWithName> {
         }
     }
 
+    public int getCurrentImageIndex() {
+        return currentImageIndex;
+    }
 }

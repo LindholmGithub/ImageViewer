@@ -15,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -26,9 +27,12 @@ import javafx.stage.Stage;
 public class ImageViewerWindowController implements Initializable
 {
     private final List<ImageWithName> images = new ArrayList<>();
+    private List<String> imageNames;
     private ExecutorService es = Executors.newFixedThreadPool(1);
     private Slideshow ss;
 
+    @FXML
+    private Label imageNameLabel;
     @FXML
     private Slider secondsSlider;
     @FXML
@@ -65,8 +69,10 @@ public class ImageViewerWindowController implements Initializable
             {
                 Image image = new Image(f.toURI().toString());
                 images.add(new ImageWithName(image, f));
+                image.getPixelReader();
             });
             displayImage(images.get(0).getImage());
+            imageNameLabel.setText(images.get(0).getImageName());
         }
     }
 
@@ -107,6 +113,8 @@ public class ImageViewerWindowController implements Initializable
         ss = new Slideshow(images,delay);
         ss.valueProperty().addListener((obs, o, n)->{
             displayImage(n.getImage());
+            imageNameLabel.setText(images.get(ss.getCurrentImageIndex()).getImageName());
+
         });
         ss.setOnCancelled(e -> {
             btnStartSlideshow.setDisable(false);
