@@ -5,10 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -30,7 +27,8 @@ public class ImageViewerWindowController implements Initializable
     private List<String> imageNames;
     private ExecutorService es = Executors.newFixedThreadPool(1);
     private Slideshow ss;
-
+    @FXML
+    public Label rgbmLabel;
     @FXML
     private Label imageNameLabel;
     @FXML
@@ -40,14 +38,11 @@ public class ImageViewerWindowController implements Initializable
     @FXML
     private Button btnNext;
     @FXML
-    private TextField secondsTextField;
-    @FXML
     private Button btnStartSlideshow;
     @FXML
     private Button btnStopSlideshow;
     @FXML
     private Button btnLoad;
-
     @FXML
     Parent root;
 
@@ -68,10 +63,17 @@ public class ImageViewerWindowController implements Initializable
             files.forEach((File f) ->
             {
                 Image image = new Image(f.toURI().toString());
-                images.add(new ImageWithName(image, f));
+                try {
+                    images.add(new ImageWithName(image, f));
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 image.getPixelReader();
             });
             displayImage(images.get(0).getImage());
+            rgbmLabel.setText(images.get(0).getRgbList().toString());
             imageNameLabel.setText(images.get(0).getImageName());
         }
     }
@@ -114,6 +116,7 @@ public class ImageViewerWindowController implements Initializable
         ss.valueProperty().addListener((obs, o, n)->{
             displayImage(n.getImage());
             imageNameLabel.setText(images.get(ss.getCurrentImageIndex()).getImageName());
+            rgbmLabel.setText(images.get(ss.getCurrentImageIndex()).getRgbList().toString());
 
         });
         ss.setOnCancelled(e -> {
@@ -131,7 +134,6 @@ public class ImageViewerWindowController implements Initializable
 
     public void handleBtnStopSlideshow(ActionEvent actionEvent) {
         ss.cancel();
-
     }
 
     @Override
